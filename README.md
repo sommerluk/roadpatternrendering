@@ -1,8 +1,8 @@
-# Abstract
+﻿# Abstract
 
 This is a tutorial about how to render on a map road line surfaces with an irregular-looking pattern using a software stack with Mapnik and CartoCSS.
 
-Why would you want to do this? A possible use case for this is rendering the road surface. You could render paved roads with a full colour, while rendering unpaved roads with the irregular-looking pattern:
+Why would you want to do this? A possible use case for this is rendering the road surface. You could render paved roads with a full color, while rendering unpaved roads with the irregular-looking pattern:
 
 ![](images/example10.png?raw=true)
 
@@ -104,13 +104,13 @@ We use example data. From top left to bottom right we have:
 - primary road, unpaved, layer 2
 - secondary road, unpaved, layer 2
 
-At some of the corners, the road line is split, at other it is continous.
+At some of the corners, the road line is split, at other it is continuous.
 
 The code is available at `code01` and it renders like this:
 
 ![](images/example01.png?raw=true)
 
-In this rendering, whereever a road is split into two OSM ways, the rendering is different and ugly compared to OSM nodes in the middle of a single OSM way. Round forms give us a better rendering:
+In this rendering, wherever a road is split into two OSM ways, the rendering is different and ugly compared to OSM nodes in the middle of a single OSM way. Round forms give us a better rendering:
 
 ```cartocss
 Map {
@@ -201,7 +201,7 @@ The code is available at `code03`.
 
 # Pattern rendering with line-pattern
 
-Now we have to write MSS code that actually renders a pattern. The natural choise would be Mapnik’s [line-pattern feature](http://mapnik.org/mapnik-reference/#3.0.20/line-pattern). Mapnik renders this pattern following the geometry of the OSM way, blending it at angles within the OSM way. We create a SVG pattern file with the correct height for each existing combination of road type and width:
+Now we have to write MSS code that actually renders a pattern. The natural choice would be Mapnik’s [line-pattern feature](http://mapnik.org/mapnik-reference/#3.0.20/line-pattern). Mapnik renders this pattern following the geometry of the OSM way, blending it at angles within the OSM way. We create a SVG pattern file with the correct height for each existing combination of road type and width:
 
 ```cartocss
 Map {
@@ -249,21 +249,21 @@ Map {
 }
 ```
 
-Obviously we need an own pattern file for each combination between colour and width. Mapnik renders the pattern as it is. Options like `line-pattern-cap` and `line-pattern-join` are not available.
+Obviously we need an own pattern file for each combination between color and width. Mapnik renders the pattern as it is. Options like `line-pattern-cap` and `line-pattern-join` are not available.
 
 The code is available at `code04` and it renders like this:
 
 ![](images/example04.png?raw=true)
 
 Advantages:
-- MMS code is easy to understand.
+- MSS code is easy to understand.
 - SQL code is trivial.
 
 Disadvantages:
-- MMS code is verbose.
-- We need many pattern files (one for each combination of road colour and width – could be generated automatically by a script?).
-- Changes to the road width requiere adapting the pattern files.
-- Rendering artefacts on joints of OSM ways and crossing OSM ways and within OSM ways if the angle is extreme.
+- MSS code is verbose.
+- We need many pattern files (one for each combination of road color and width – could be generated automatically by a script?).
+- Changes to the road width require adapting the pattern files.
+- Rendering artifacts on joints of OSM ways and crossing OSM ways and within OSM ways if the angle is extreme.
 - Does not look good for very thin road lines
 
 # Pattern rendering with dash-array
@@ -464,7 +464,7 @@ Map {
 }
 ```
 
-This code is based on Mapnik’s ability to render various lines for a single geometry – here starting with `b/`, `c/` and so on. For these lines, we use a dasharray that looks irregualar. Furhtermore, each of these dasharrays has a different length to make sure that we do not get a regular-looking pattern on long straight line geometries. The larger our normal road line is, the more dasharray lines we need.
+This code is based on Mapnik’s ability to render various lines for a single geometry – here starting with `b/`, `c/` and so on. For these lines, we use a dasharray that looks irregular. Furthermore, each of these dasharrays has a different length to make sure that we do not get a regular-looking pattern on long straight line geometries. The larger our normal road line is, the more dasharray lines we need.
 
 The code is available at `code05` and it renders like this:
 
@@ -475,17 +475,17 @@ Advantages:
 - Looks good also for very thin road lines
 
 Disadvantages:
-- MMS code is redundant and extremely verbose.
-- Changes to the road width requiere adapting the code for the dash-arrays.
-- Rendering artefacts on joints of OSM ways and crossing OSM ways and within OSM ways if the angle is extreme.
+- MSS code is redundant and extremely verbose.
+- Changes to the road width require adapting the code for the dash-arrays.
+- Rendering artifacts on joints of OSM ways and crossing OSM ways and within OSM ways if the angle is extreme.
 
 # Pattern rendering with dst-out
 
-To get a rendering without any artefacts, we would need something like a `polygon-pattern`. This pattern would not be blended following the line geometry, but it would be aligned globally like normal `polygon-pattern`, just only visible where the line geometry of the road is, considering also `line-cap` and `line-join` for the road. This would even guarantee smooth rendering without any artefacts for example for a primary unpaved and a secondary unpaved road crossing (if we use the same pattern for these road types and just change the colour). It would also play very well together with `area:highway` rendering of polygon geometries: both could use the same pattern file.
+To get a rendering without any artifacts, we would need something like a `polygon-pattern`. This pattern would not be blended following the line geometry, but it would be aligned globally like normal `polygon-pattern`, just only visible where the line geometry of the road is, considering also `line-cap` and `line-join` for the road. This would even guarantee smooth rendering without any artifacts for example for a primary unpaved and a secondary unpaved road crossing (if we use the same pattern for these road types and just change the color). It would also play very well together with `area:highway` rendering of polygon geometries: both could use the same pattern file.
 
-Unfourtunally, Mapnik has no build-in support for direct polygon-pattern rendering for line geometries. But we can archieve the same rendering nevertheless. It’ just a little bit tricky.
+Mapnik has no build-in support for direct polygon-pattern rendering for line geometries until version 3.0.22. But we can achieve the same rendering nevertheless. It’s just a little bit tricky.
 
-By default, Mapnik draws newer elements _above_ everything that is yet rendered. But this behaviour can be customized with the `comp-op` parameter.
+By default, Mapnik draws newer elements _above_ everything that is yet rendered. But this behavior can be customized with the `comp-op` parameter.
 
 ## Apply dst-out to unpaved roads
 
@@ -591,9 +591,9 @@ Map {
 }
 ```
 
-The line `polygon-pattern-comp-op: dst-over;` will make render the polygon-pattern _behind_ the canvas instead of _above_. Our MSS code contains two so-called “attachments”: `fill` and `primary-fill-pattern`. Attachments are rendered by order: Attachments that occur earlier in the code are rendered earlier; attachments that accur later in the code are rendered later. The attachment order has priority over the order done by `ORDER BY` in the SQL query! Therefor, out pattern will be rendered _later_ than the road lines.
+The line `polygon-pattern-comp-op: dst-over;` will make render the polygon-pattern _behind_ the canvas instead of _above_. Our MSS code contains two so-called “attachments”: `fill` and `primary-fill-pattern`. Attachments are rendered by order: Attachments that occur earlier in the code are rendered earlier; attachments that occur later in the code are rendered later. The attachment order has priority over the order done by `ORDER BY` in the SQL query! Therefor, out pattern will be rendered _later_ than the road lines.
 
-We want that the polygon pattern is rendered everywhere, on the whole planet – always behind the canvas. Unfourtunally, Mapnik cannot simply render a polygon pattern on the whole planet; it needs an actual geometry. So we need to create a sort of “fake” polygon that covers the whole planet. This can be done in the SQL query:
+We want that the polygon pattern is rendered everywhere, on the whole planet – always behind the canvas. Unfortunately, Mapnik cannot simply render a polygon pattern on the whole planet; it needs an actual geometry. So we need to create a sort of “fake” polygon that covers the whole planet. This can be done in the SQL query:
 
 ```yaml
 center:
@@ -656,7 +656,7 @@ The code is available at `code07` and it renders like this:
 
 ![](images/example07.png?raw=true)
 
-But currently we render only the pattern for the primary roads, so unpaved secondary roads get the same colour as unpaved primary roads. To change this, we have to reorganize our MSS code.
+But currently we render only the pattern for the primary roads, so unpaved secondary roads get the same color as unpaved primary roads. To change this, we have to reorganize our MSS code.
 
 ```cartocss
 Map {
@@ -720,24 +720,24 @@ Map {
 }
 ```
 
-We want to render more important roads above less important roads. Therefor we have to split our MMS code into more attachments, and order them by road type, starting with the less important one. After each road type, we insert the code for the corresponding pattern.
+We want to render more important roads above less important roads. Therefor we have to split our MSS code into more attachments, and order them by road type, starting with the less important one. After each road type, we insert the code for the corresponding pattern.
 
 The code is available at `code08` and it renders like this:
 
 ![](images/example08.png?raw=true)
 
-Remark: _You do not need necessarily an own attachment for each z_order value. Imagine you have various road types like residential and service, that you render all in the same colour. Only one attachment for the code for of all these roads with the same colour (for example `unimportant-roads-fill`) and another attachment for the corresponding pattern (for example `unimportant-roads-fill-pattern`) is enough. And within the road attachment, the order from the SQL query applies._
+Remark: _You do not need necessarily an own attachment for each z_order value. Imagine you have various road types like residential and service, that you render all in the same color. Only one attachment for the code for of all these roads with the same color (for example `unimportant-roads-fill`) and another attachment for the corresponding pattern (for example `unimportant-roads-fill-pattern`) is enough. And within the road attachment, the order from the SQL query applies._
 
 ## Support for `layer`
 
 But this code does not consider the `layer` key anymore. That’s because of the rendering order. The general rendering order in Mapnik is like this:
 
 1. The layers in the yaml file
-2. group-by paramater (if any) of a layer in the yaml file
+2. group-by parameter (if any) of a layer in the yaml file
 3. the attachments in the MSS code (for MSS rules that are not within an attachment, a default attachment is created)
 4. the data order in the SQL query
 
-So the attachment order has priority over the data order. If we still want to have support for `layer`, than we need another solution. A comfortable way to archieve the correct layer rendering again is using the `group-by` parameter to group roads by OSM layer:
+So the attachment order has priority over the data order. If we still want to have support for `layer`, than we need another solution. A comfortable way to achieve the correct layer rendering again is using the `group-by` parameter to group roads by OSM layer:
 
 ```yaml
 center:
@@ -796,7 +796,7 @@ Layer:
       group-by: layernotnull
 ```
 
-Note that although we use `group-by: layernotnull` now, we still keep `layernotnull` also in the `ORDER BY` SQL statement. This is a requierement to make sure that `group-by` works as expected.
+Note that although we use `group-by: layernotnull` now, we still keep `layernotnull` also in the `ORDER BY` SQL statement. This is a requirement to make sure that `group-by` works as expected.
 
 The code is available at `code09` and it renders like this:
 
@@ -851,14 +851,10 @@ Layer:
                 layernotnull,
                 NULL AS z_order
               FROM
-                (SELECT DISTINCT
-                    layernotnull
-                  FROM
-                    (SELECT
-                        COALESCE(layer,0) AS layernotnull
-                      FROM planet_osm_line
-                      WHERE highway IS NOT NULL AND surface IN ('unpaved')
-                    ) AS roads
+                (SELECT DISTINCT ON (COALESCE(layer,0))
+                    COALESCE(layer,0) AS layernotnull
+                  FROM planet_osm_line
+                  WHERE highway IS NOT NULL AND surface IN ('unpaved')
                 ) AS layers_list
             )
             ) AS features
@@ -871,22 +867,235 @@ Layer:
       group-by: layernotnull
 ```
 
-This query creates exactly _one_ fake polygon for _each_ OSM layer that occurs on OSM ways that have a `highway` tag and are also unpaved. We could also make the `WHERE` clause more restrictive, selecting at the `highway` tag only _primary_ and _secondary_ roads, which are the only ones we are currently rendering in this example style.
+This query creates exactly _one_ fake polygon for _each_ OSM layer that occurs on OSM ways that have a `highway` tag and are also unpaved.
 
 The code is available at `code10` and it renders like this:
 
 ![](images/example10.png?raw=true)
 
+## Performance optimization
+
+Doing the rendering this way can be slow for various reasons. In order of importance (starting with the most important one):
+
+1. Complex queries can lead to Full Table Scans. [`SELECT DISTINCT` is apparently not playing well with Mapnik’s automatic bbox additon.](https://github.com/gravitystorm/openstreetmap-carto/issues/3280#issuecomment-400474573) So [to avoid full table scans we have to add bbox explicitly in our SQL queries and sub-queries](https://github.com/gravitystorm/openstreetmap-carto/issues/3280#issuecomment-403280157).
+2. [For each attachment in the MSS code the SQL query is run again.](https://github.com/mapnik/mapnik/issues/3977#issuecomment-416269110) So if we have 40 attachments, our SQL query will be 40 times slower, which can be a serious performance issue. [Mapnik does not cache SQL results between attachments](https://github.com/mapnik/mapnik/issues/657) to avoid possible memory issues, but [memory problems are not likely](https://github.com/mapnik/mapnik/issues/3977#issuecomment-417923243) so it is reasonable to enable SQL result caching explicitly by `cache-features: true`. (Note that `cache-features: on` should also work because `cache-features` is a boolean value in Mapnik and `on` is assumed to be an alias for `true`, but [I encountered problems using `on`](https://github.com/gravitystorm/openstreetmap-carto/pull/3357#issuecomment-417917722) and it is the only boolean option in mapnik-reference that uses `on` instead of `true`, so I would recommend to use `cache-features: true`.
+3. The comp-op operation is slow. [Rendering with dst-out is just as fast as rendering with default composition. But for dst-over every pixel of rendered image needs to be composited,](https://github.com/gravitystorm/openstreetmap-carto/pull/3357#issuecomment-419658334), which is substantially slower. We render our fake polygons with `dst-over`. In the previous code, the query creates exactly _one_ fake polygon for _each_ OSM layer that occurs on OSM ways that have a `highway` tag and are also unpaved. We could make the `WHERE` clause more restrictive, selecting at the `highway` tag only _primary_ and _secondary_ roads, which are the only ones we are currently rendering in this example style. This would reduce the number of fake polygons actually rendered, which should speed up the rendering a little bit.
+
+```yaml
+center:
+  - 0
+  - 0
+  - 4
+
+# Various parts to be included later on
+_parts:
+  # Extents are used for tilemill, and don't actually make it to the generated XML
+  osm2pgsql: &osm2pgsql
+    type: "postgis"
+    dbname: "gis"
+    key_field: ""
+    geometry_field: "way"
+    extent: "-20037508,-20037508,20037508,20037508"
+
+Stylesheet:
+  - roads.mss
+
+Layer:
+  - id: roads-fill
+    geometry: linestring
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+            way,
+            feature,
+            int_surface,
+            layernotnull,
+            z_order
+          FROM (
+            SELECT
+                way,
+                'highway_' || highway AS feature,
+                surface AS int_surface,
+                COALESCE(layer,0) AS layernotnull,
+                z_order
+              FROM planet_osm_line
+              WHERE way && !bbox!
+            UNION ALL
+            (SELECT
+                ST_MakeEnvelope(-20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244, 900913) AS way,
+                'globalboundingbox' AS feature,
+                NULL AS int_surface,
+                layernotnull,
+                NULL AS z_order
+              FROM
+                (SELECT DISTINCT ON (COALESCE(layer,0))
+                    COALESCE(layer,0) AS layernotnull
+                  FROM planet_osm_line
+                  WHERE (highway IN ('primary', 'secondary')) AND surface IN ('unpaved') AND way && !bbox!
+                ) AS layers_list
+            )
+            ) AS features
+          ORDER BY
+            layernotnull,
+            z_order,
+            CASE WHEN int_surface IN ('unpaved') THEN 0 ELSE 2 END
+        ) AS roads_fill
+    properties:
+      group-by: layernotnull
+      cache-features: true
+```
+
+The code is available at `code11`. The rendering has not changed.
+
+## Conclusion
+
 Advantages:
-- Rendering artefacts on joints of OSM ways and crossing OSM ways and within OSM ways if the angle is extreme. Plays well also together with road areas (area:highway=*)
-- Changes to the road width do not requiere any further changes.
-- One pattern file per colour is enough
+- No rendering artifacts on joints of OSM ways and crossing OSM ways and within OSM ways if the angle is extreme. Renders perfectly also together with road areas (`area:highway=*`)
+- Changes to the road width do not require any further changes to the pattern files.
+- Just one pattern file per color is enough
 
 Disadvantages:
 - The SQL query for the fake polygon is not really nice.
 - Does not look good for very thin road lines
-- The rendering with `dst-out` is not intuitive to understand. There is a complex interdependency between
+- The rendering with `dst-out` is not intuitive to understand. There is a complex interdependence between
   - the attachment order in the MSS file
-  - the `ORDER` statements in the SQL querys
+  - the `ORDER` statements in the SQL queries
   - the SQL query for the fake polygon
   - and especially the `z_order` value (originally calculated in the Lua transform)
+- The SQL query must be designed very carefully to perform well. There are really a lot of performance pitfalls.
+
+# Native Mapnik support for this use case
+The pattern rendering with `dst-out` is the only one of the solutions presented so far that offers rendering without clutter or artifacts. But given its complexity, it would be far better to have native Mapnik support for this use case. The guys from Mapnik are really great. So [just after asking](https://github.com/mapnik/mapnik/issues/3977), they have [implemented native Mapnik support for this](https://github.com/mapnik/mapnik/pull/3980) really fast, and [back-ported it to the 3.0.x branch](https://github.com/mapnik/mapnik/pull/4004) and released it with Mapnik 3.0.22 (and updated mapnik-reference and NPM packages and so on). Now, the existing line-pattern symbolizer is extended. Its new option [`line-pattern-type=repeat`](http://mapnik.org/mapnik-reference/#3.0.22/line-pattern-type) gives us native support, together with various other new options to control the line width and line caps and the pattern alignment for this new rendering mode:
+- line-pattern-type
+- line-pattern-alignment
+- line-pattern-width
+- line-pattern-cap
+- line-pattern-join
+- line-pattern-miterlimit
+- line-pattern-dasharray
+
+Here is the CartoCSS code:
+
+```cartocss
+Map {
+  background-color: white;
+}
+
+#roads-fill {
+
+  ::fill {
+
+    [feature = 'highway_primary'] {
+        line-color: #fcd6a4;
+        line-width: 10;
+        [int_surface = 'unpaved'] {
+          line-pattern-type: repeat;
+          line-pattern-file: url('symbols/unpaved/unpaved_primary-fill.svg');
+          line-pattern-alignment: global;
+          line-pattern-width: 10;
+          line-pattern-cap: round;
+          line-pattern-join: round;
+        }
+        [zoom >= 18] {
+          line-width: 15;
+          [int_surface = 'unpaved'] { line-pattern-width: 15; }
+        }
+        [zoom >= 19] {
+          line-width: 20;
+          [int_surface = 'unpaved'] { line-pattern-width: 20; }
+        }
+        line-cap: round;
+        line-join: round;
+    }
+
+    [feature = 'highway_secondary'] {
+        line-color: #f7fabf;
+        line-width: 5;
+        [int_surface = 'unpaved'] {
+          line-pattern-type: repeat;
+          line-pattern-file: url('symbols/unpaved/unpaved_secondary-fill.svg');
+          line-pattern-alignment: global;
+          line-pattern-width: 5;
+          line-pattern-cap: round;
+          line-pattern-join: round;
+        }
+        [zoom >= 18] {
+          line-width: 10;
+          [int_surface = 'unpaved'] { line-pattern-width: 10; }
+        }
+        [zoom >= 19] {
+          line-width: 15;
+          [int_surface = 'unpaved'] { line-pattern-width: 15; }
+        }
+        line-cap: round;
+        line-join: round;
+    }
+
+  }
+
+}
+```
+
+And we can use the original `project.mml` file with the simply SQL query:
+
+```yaml
+center:
+  - 0
+  - 0
+  - 4
+
+# Various parts to be included later on
+_parts:
+  # Extents are used for tilemill, and don't actually make it to the generated XML
+  osm2pgsql: &osm2pgsql
+    type: "postgis"
+    dbname: "gis"
+    key_field: ""
+    geometry_field: "way"
+    extent: "-20037508,-20037508,20037508,20037508"
+
+Stylesheet:
+  - roads.mss
+
+Layer:
+  - id: roads-fill
+    geometry: linestring
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+            way,
+            feature,
+            int_surface,
+            layernotnull,
+            z_order
+          FROM (
+            SELECT
+                way,
+                'highway_' || highway AS feature,
+                surface AS int_surface,
+                COALESCE(layer,0) AS layernotnull,
+                z_order
+              FROM planet_osm_line
+            ) AS features
+          ORDER BY
+            layernotnull,
+            z_order,
+            CASE WHEN int_surface IN ('unpaved') THEN 0 ELSE 2 END
+        ) AS roads_fill
+```
+
+The code is available at `code12` and it renders the same as the full-features `dst-out` code does.
+
+Advantages:
+- No rendering artifacts on joints of OSM ways and crossing OSM ways and within OSM ways if the angle is extreme. Renders perfectly also together with road areas (`area:highway=*`)
+- Changes to the road width do not require any further changes to the pattern files.
+- Just one pattern file per color is enough
+- SQL query is trivial.
+- MSS code is compact and easy to understand.
+- No complex dependencies.
+- No performance pitfalls.
+
+Disadvantages:
+- Does not look good for very thin road lines

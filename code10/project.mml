@@ -1,0 +1,60 @@
+center:
+  - 0
+  - 0
+  - 4
+
+# Various parts to be included later on
+_parts:
+  # Extents are used for tilemill, and don't actually make it to the generated XML
+  osm2pgsql: &osm2pgsql
+    type: "postgis"
+    dbname: "gis"
+    key_field: ""
+    geometry_field: "way"
+    extent: "-20037508,-20037508,20037508,20037508"
+
+Stylesheet:
+  - roads.mss
+
+Layer:
+  - id: roads-fill
+    geometry: linestring
+    Datasource:
+      <<: *osm2pgsql
+      table: |-
+        (SELECT
+            way,
+            feature,
+            int_surface,
+            layernotnull,
+            z_order
+          FROM (
+            SELECT
+                way,
+                'highway_' || highway AS feature,
+                surface AS int_surface,
+                COALESCE(layer,0) AS layernotnull,
+                z_order
+              FROM planet_osm_line
+            UNION ALL
+            (SELECT
+                ST_MakeEnvelope(-20037508.342789244, -20037508.342789244, 20037508.342789244, 20037508.342789244, 900913) AS way,
+                'globalboundingbox' AS feature,
+                NULL AS int_surface,
+                layernotnull,
+                NULL AS z_order
+              FROM
+                (SELECT DISTINCT ON (COALESCE(layer,0))
+                    COALESCE(layer,0) AS layernotnull
+                  FROM planet_osm_line
+                  WHERE highway IS NOT NULL AND surface IN ('unpaved')
+                ) AS layers_list
+            )
+            ) AS features
+          ORDER BY
+            layernotnull,
+            z_order,
+            CASE WHEN int_surface IN ('unpaved') THEN 0 ELSE 2 END
+        ) AS roads_fill
+    properties:
+      group-by: layernotnull
