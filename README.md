@@ -948,6 +948,8 @@ Layer:
 
 The code is available at `code11`. The rendering has not changed.
 
+Further possible improvements: Maybe the CartoCSS code `line-comp-op: dst-out;`, which applies individually to each drawn element, could be replaced by something like `comp-op: dst-out;` which applies to the entire layer. However, this would need even more separate attachments and layers, and the performance gain might be minimal given that `dst-out` is not performance relevant. Our real problem isl `dst-over`, and there we have yet only one drawn element per layer, so probably not much room for improvements. However, this would have to be tested…
+
 ## Conclusion
 
 Advantages:
